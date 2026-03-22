@@ -2,7 +2,10 @@ module github.com/mmMikhailS/DeepBoard/internal/common
 
 go 1.25.0
 
-require google.golang.org/grpc v1.79.3
+require (
+	github.com/pkg/errors v0.9.1
+	google.golang.org/grpc v1.79.3
+)
 
 require (
 	golang.org/x/net v0.48.0 // indirect

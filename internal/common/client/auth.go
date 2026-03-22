@@ -3,6 +3,8 @@ package client
 import (
 	"context"
 	"strings"
+
+	"google.golang.org/grpc/credentials"
 )
 
 type metadataServerToken struct {
@@ -15,13 +17,14 @@ func newMetadataServerToken(grpcAddr string) credentials.PerRPCCredentials {
 	return metadataServerToken{serviceURL}
 }
 
-func (t metadataServerToken) GetRequestMetadata(ctx context.Context, in ...string) (map[string]string, error) {
-	// TODO
-
-	return map[string]string{
-		"authorization": "Bearer " + idToken,
-	}, nil
-}
+// TODO
+//func (t metadataServerToken) GetRequestMetadata(ctx context.Context, in ...string) (map[string]string, error) {
+//
+//
+//	return map[string]string{
+//		"authorization": "Bearer " + idToken,
+//	}, nil
+//}
 
 func (metadataServerToken) RequireTransportSecurity() bool {
 	return true

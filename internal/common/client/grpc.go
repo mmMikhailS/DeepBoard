@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -21,7 +22,7 @@ func NewAuthClient() (client auth.AuthServiceClient, close func() error, err err
 		return nil, func() error { return nil }, errors.New("empty env AUTH_GRPC_ADDR")
 	}
 
-	opts, err := grpcDialOpts( /*grpcAddr*/ )
+	opts, err := grpcDialOpts()
 	if err != nil {
 		return nil, func() error { return nil }, err
 	}
@@ -41,10 +42,10 @@ func WaitForAuthService(timeout time.Duration) bool {
 func NewTwoFAClient() (client twofa.TwofaServiceClient, close func() error, err error) {
 	grpcAddr := os.Getenv("TWOFA_GRPC_ADDR")
 	if grpcAddr == "" {
-		return nil, func() error { return nil }, errors, New("empty env TWOFA_GRPC_ADDR")
+		return nil, func() error { return nil }, errors.New("empty env TWOFA_GRPC_ADDR")
 	}
 
-	opts, err := grpcDialOpts( /*grpcAddr*/ )
+	opts, err := grpcDialOpts()
 	if err != nil {
 		return nil, func() error { return nil }, err
 	}
@@ -57,11 +58,11 @@ func NewTwoFAClient() (client twofa.TwofaServiceClient, close func() error, err 
 	return twofa.NewTwofaServiceClient(conn), conn.Close, nil
 }
 
-func WaitForUsersService(timeout time.Duration) bool {
+func WaitForTwoFAService(timeout time.Duration) bool {
 	return waitForPort(os.Getenv("TWOFA_GRPC_ADDR"), timeout)
 }
 
-func grpcDialOpts( /*grpcAddr string*/ ) ([]grpc.DialOption, error) {
+func grpcDialOpts() ([]grpc.DialOption, error) {
 	if noTLS, _ := strconv.ParseBool(os.Getenv("GRPC_NO_TLS")); noTLS {
 		return []grpc.DialOption{
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -70,7 +71,7 @@ func grpcDialOpts( /*grpcAddr string*/ ) ([]grpc.DialOption, error) {
 
 	systemRoots, err := x509.SystemCertPool()
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot load root CA cert")
+		return nil, fmt.Errorf("cannot load root CA cert: %w", err)
 	}
 	creds := credentials.NewTLS(&tls.Config{
 		RootCAs:    systemRoots,
