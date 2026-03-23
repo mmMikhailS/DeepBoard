@@ -4,6 +4,9 @@ import (
 	"context"
 	"net/http"
 	"strings"
+
+	"github.com/mmMikhailS/DeepBoard/internal/common/client/auth"
+	commonerrors "github.com/mmMikhailS/DeepBoard/internal/common/errors"
 )
 
 type HttpMiddleware struct {
@@ -12,9 +15,9 @@ type HttpMiddleware struct {
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
+		//ctx := r.Context()
 
-		// HTTPMiddleware implements
+		// HTTPMiddleware implementation
 	})
 }
 
@@ -42,9 +45,7 @@ const (
 	userContextKey ctxKey = iota
 )
 
-var (
-	NoUserInContextError = commonerrors.NewAuthorizationError("no user in context", "no-user-found")
-)
+var NoUserInContextError = commonerrors.NewAuthorizationError("no user in context", "no-user-found")
 
 func UserFromCtx(ctx context.Context) (User, error) {
 	if u, ok := ctx.Value(userContextKey).(User); ok {
