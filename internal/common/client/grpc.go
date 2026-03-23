@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/mmMikhailS/DeepBoard/internal/common/client/auth"
-	"github.com/mmMikhailS/DeepBoard/internal/common/client/twofa"
+	"github.com/mmMikhailS/DeepBoard/internal/common/genproto/auth"
+	"github.com/mmMikhailS/DeepBoard/internal/common/genproto/twofa"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
