@@ -60,3 +60,28 @@ func (d queryMetricsDecorator[C, R]) Handle(ctx context.Context, query C) (resul
 
 	return d.base.Handle(ctx, query)
 }
+
+type httpMetricsDecorator[C any, R any] struct {
+	base   HttpHandler[C, R]
+	client MetricsClient
+}
+
+func (d httpMetricsDecorator[C, R]) Handle(ctx context.Context, request C) (result R, err error) {
+	start := time.Now()
+
+	actionName := strings.ToLower(generateActionName(request))
+
+	defer func() {
+		end := time.Since(start)
+
+		d.client.Inc(fmt.Sprintf("http.%s.duration", actionName), int(end.Seconds()))
+
+		if err == nil {
+			d.client.Inc(fmt.Sprintf("http.%s.duration", actionName), int(end.Seconds()))
+		} else {
+			d.client.Inc(fmt.Sprintf("http.%s.failure", actionName), 1)
+		}
+	}()
+
+	return d.base.Handle(ctx, request)
+}

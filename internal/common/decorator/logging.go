@@ -12,7 +12,7 @@ type commandLoggingDecorator[C any] struct {
 	logger *logrus.Entry
 }
 
-func (d commandLoggingDecorator[C]) Handle(ctx context.Context, cmd C) error {
+func (d commandLoggingDecorator[C]) Handle(ctx context.Context, cmd C) (err error) {
 	handlerType := generateActionName(cmd)
 
 	logger := d.logger.WithFields(logrus.Fields{
@@ -37,7 +37,7 @@ type queryLoggingDecorator[C any, R any] struct {
 	logger *logrus.Entry
 }
 
-func (d queryLoggingDecorator[C, R]) Handle(ctx context.Context, cmd C) (resul R, err error) {
+func (d queryLoggingDecorator[C, R]) Handle(ctx context.Context, cmd C) (result R, err error) {
 	logger := d.logger.WithFields(logrus.Fields{
 		"query":      generateActionName(cmd),
 		"query_body": fmt.Sprintf("%#v", cmd),
@@ -52,6 +52,30 @@ func (d queryLoggingDecorator[C, R]) Handle(ctx context.Context, cmd C) (resul R
 			logger.WithError(err).Error("Failed to execute query")
 		}
 	}()
-	
+
+	return d.base.Handle(ctx, cmd)
+}
+
+type httpLoggingDecorator[C any, R any] struct {
+	base   HttpHandler[C, R]
+	logger *logrus.Entry
+}
+
+func (d httpLoggingDecorator[C, R]) Handle(ctx context.Context, cmd C) (result R, err error) {
+	logger := d.logger.WithFields(logrus.Fields{
+		"http":      generateActionName(cmd),
+		"http_body": fmt.Sprintf("%#v", cmd),
+	})
+
+	logger.Debug("Executing http")
+
+	defer func() {
+		if err == nil {
+			logger.Info("Http executed successfully")
+		} else {
+			logger.WithError(err).Error("Failed to execute http")
+		}
+	}()
+
 	return d.base.Handle(ctx, cmd)
 }

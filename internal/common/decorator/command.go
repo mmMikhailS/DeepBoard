@@ -18,8 +18,8 @@ func ApplyCommandDecorators[H any](handler CommandHandler[H], logger *logrus.Ent
 	}
 }
 
-type CommandHandler[C any] interface {
-	Handle(ctx context.Context, cmd C) error
+type CommandHandler[Q any] interface {
+	Handle(ctx context.Context, cmd Q) error
 }
 
 func generateActionName(handler any) string {
